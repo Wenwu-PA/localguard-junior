@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LocalGuardJunior")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d9f177bfe31e19965422a94aec0b77a5093130d6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5bd5fc239172687f11a2cd63b949736296c395a0")]
 [assembly: System.Reflection.AssemblyProductAttribute("LocalGuardJunior")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LocalGuardJunior")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

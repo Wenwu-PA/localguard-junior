@@ -304,39 +304,102 @@ internal sealed class MainForm : Form
     private TabPage CreateChatTab()
     {
         var page = new TabPage("3. Чат (демо)");
-        page.Controls.Add(Label(
-            "Демонстрационный чат: фильтр работает только для сообщений, введённых ниже. " +
-            "Приложение не читает Telegram, Discord и другие чаты.", 20, 18, 835, 58));
 
-        chatHistory.Multiline = true;
-        chatHistory.ReadOnly = true;
-        chatHistory.ScrollBars = ScrollBars.Vertical;
-        chatHistory.SetBounds(20, 88, 838, 360);
-        chatHistory.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        page.Controls.Add(chatHistory);
-
-        chatInput.SetBounds(20, 472, 712, 32);
-        chatInput.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        chatInput.PlaceholderText = "Введите сообщение для проверки";
-        chatInput.KeyDown += (sender, e) =>
+        // Сначала поле ввода, ниже история сообщений: их сложно перепутать.
+        var layout = new TableLayoutPanel
         {
-            if (e.KeyCode == Keys.Enter)
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 5,
+            Padding = new Padding(16)
+        };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 55));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        page.Controls.Add(layout);
+
+        layout.Controls.Add(new Label
+        {
+            Text = "Учебный чат: сообщения фильтруются по списку слов с первой вкладки. " +
+                   "Переписка из других программ не читается.",
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.MiddleLeft
+        }, 0, 0);
+
+        layout.Controls.Add(new Label
+        {
+            Text = "ВВОД СООБЩЕНИЯ (пишите в поле ниже):",
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 10, FontStyle.Bold),
+            TextAlign = ContentAlignment.MiddleLeft
+        }, 0, 1);
+
+        // Отдельная большая область ввода в ВЕРХНЕЙ части вкладки.
+        var inputRow = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1,
+            Margin = new Padding(0)
+        };
+        inputRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        inputRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140));
+        inputRow.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.Controls.Add(inputRow, 0, 2);
+
+        chatInput.Multiline = true;
+        chatInput.ReadOnly = false;
+        chatInput.Enabled = true;
+        chatInput.TabStop = true;
+        chatInput.Dock = DockStyle.Fill;
+        chatInput.BackColor = Color.FromArgb(255, 255, 235);
+        chatInput.ForeColor = SystemColors.WindowText;
+        chatInput.BorderStyle = BorderStyle.FixedSingle;
+        chatInput.ScrollBars = ScrollBars.Vertical;
+        chatInput.Font = new Font("Segoe UI", 11);
+        chatInput.Margin = new Padding(0, 4, 10, 4);
+        chatInput.PlaceholderText = "Напишите текст здесь...";
+        // Enter отправляет сообщение. Shift+Enter вставляет новую строку.
+        chatInput.KeyDown += (_, e) =>
+        {
+            if (e.KeyCode == Keys.Enter && !e.Shift)
             {
                 e.SuppressKeyPress = true;
                 SendChatMessage();
             }
         };
-        page.Controls.Add(chatInput);
+        inputRow.Controls.Add(chatInput, 0, 0);
 
-        var sendButton = Button("Отправить", 748, 469, 110);
-        sendButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        var sendButton = new Button
+        {
+            Text = "Отправить",
+            Dock = DockStyle.Fill,
+            Margin = new Padding(0, 4, 0, 4)
+        };
         sendButton.Click += (_, _) => SendChatMessage();
-        page.Controls.Add(sendButton);
+        inputRow.Controls.Add(sendButton, 1, 0);
 
-        var chatHint = Label("Для чата используются те же запрещённые слова, что и для проверки файлов.",
-            20, 527, 835, 30);
-        chatHint.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-        page.Controls.Add(chatHint);
+        layout.Controls.Add(new Label
+        {
+            Text = "ИСТОРИЯ СООБЩЕНИЙ (только просмотр):",
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 10, FontStyle.Bold),
+            TextAlign = ContentAlignment.MiddleLeft
+        }, 0, 3);
+
+        // Историю нельзя редактировать, она заполняется после отправки.
+        chatHistory.Multiline = true;
+        chatHistory.ReadOnly = true;
+        chatHistory.ScrollBars = ScrollBars.Vertical;
+        chatHistory.BackColor = SystemColors.Window;
+        chatHistory.Dock = DockStyle.Fill;
+        chatHistory.TabStop = false;
+        layout.Controls.Add(chatHistory, 0, 4);
+
+        page.Enter += (_, _) => chatInput.Focus();
         return page;
     }
 
@@ -348,6 +411,7 @@ internal sealed class MainForm : Form
         (string safeText, int replacements) = TextFilter.ReplaceWords(chatInput.Text, words);
         chatHistory.AppendText($"Сообщение: {safeText} (замен: {replacements})\r\n");
         chatInput.Clear();
+        chatInput.Focus();
     }
 
     private static Label Label(string text, int x, int y, int width, int height = 26) =>

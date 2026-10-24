@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Wenwu\\Desktop\\LocalGuardJunior_ExamProject\\LocalGuardJunior\\LocalGuardJunior\\LocalGuardJunior.csproj",
+      "projectUniqueName": "C:\\Users\\Wenwu\\Desktop\\localguard-junior\\LocalGuardJunior.csproj",
       "projectName": "LocalGuardJunior",
-      "projectPath": "C:\\Users\\Wenwu\\Desktop\\LocalGuardJunior_ExamProject\\LocalGuardJunior\\LocalGuardJunior\\LocalGuardJunior.csproj",
+      "projectPath": "C:\\Users\\Wenwu\\Desktop\\localguard-junior\\LocalGuardJunior.csproj",
       "packagesPath": "C:\\Users\\Wenwu\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Wenwu\\Desktop\\LocalGuardJunior_ExamProject\\LocalGuardJunior\\LocalGuardJunior\\obj\\",
+      "outputPath": "C:\\Users\\Wenwu\\Desktop\\localguard-junior\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Wenwu\\AppData\\Roaming\\NuGet\\NuGet.Config",
