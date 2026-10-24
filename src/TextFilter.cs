@@ -2,12 +2,12 @@ using System.Text.RegularExpressions;
 
 namespace LocalGuardJunior;
 
-// Checks text for the words entered by the user and replaces matches with '*'.
+// Ищем заданные пользователем слова и заменяем их звёздочками.
 internal static class TextFilter
 {
     public static List<string> ParseWords(string input)
     {
-        // Example: "bad, rude" -> ["bad", "rude"].
+        // Например, строка "слово1, слово2" превращается в список из двух слов.
         return input.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(word => word.Length > 0)
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -21,8 +21,8 @@ internal static class TextFilter
 
         foreach (string word in words)
         {
-            // Escape a user's word: characters like '.', '?' are treated literally.
-            // Unicode boundaries prevent matching "cat" inside "catalog".
+            // Regex.Escape не позволяет символам типа точки стать частью регулярного выражения.
+            // Границы слова нужны, чтобы не заменять часть другого слова.
             string pattern = @"(?<![\p{L}\p{N}])" + Regex.Escape(word) + @"(?![\p{L}\p{N}])";
 
             result = Regex.Replace(result, pattern, match =>

@@ -5,7 +5,7 @@ namespace LocalGuardJunior;
 internal sealed record ScanSummary(int CheckedFiles, int Replacements, string ReportPath);
 internal sealed record ScanMatch(string FilePath, int Count);
 
-// Reads text files in a selected folder and saves sanitized COPIES to Documents.
+// Читаем файлы в выбранной папке и сохраняем исправленные КОПИИ в Документы.
 internal static class FileScanService
 {
     private static readonly string[] SupportedExtensions = [".txt", ".log", ".md", ".csv"];
@@ -13,7 +13,7 @@ internal static class FileScanService
     public static async Task<ScanSummary> ScanAsync(
         string folder, List<string> words, IProgress<int> progress, CancellationToken token)
     {
-        // Recurse into subfolders, but do not follow symbolic links/junctions.
+        // Заходим в подпапки, но не следуем по символическим ссылкам.
         var options = new EnumerationOptions
         {
             RecurseSubdirectories = true,
@@ -30,12 +30,12 @@ internal static class FileScanService
             "LocalGuardResults", DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_" + Guid.NewGuid().ToString("N")[..6]);
         Directory.CreateDirectory(outputFolder);
 
-        int processed = 0; // Shared variable accessed by five workers.
+        int processed = 0; // Общий счётчик, который будут менять до пяти работников.
         var found = new List<ScanMatch>();
         var errors = new List<string>();
-        object listLock = new(); // Synchronizes writes to shared lists.
+        object listLock = new(); // Объект блокировки защищает общие списки.
 
-        // Parallel.ForEachAsync creates work for at most five concurrent workers.
+        // Одновременно выполняется не больше пяти задач.
         await Parallel.ForEachAsync(files, new ParallelOptions
         {
             MaxDegreeOfParallelism = 5,
@@ -44,7 +44,7 @@ internal static class FileScanService
         {
             try
             {
-                // Avoid reading huge text files into RAM in this student example.
+                // Для учебного примера не читаем слишком большие файлы в память.
                 if (new FileInfo(file).Length > 2_000_000)
                     return;
 
@@ -53,7 +53,7 @@ internal static class FileScanService
 
                 if (matches > 0)
                 {
-                    // Original files never change; copy folder structure into output.
+                    // Оригиналы не трогаем: сохраняем копию, сохраняя структуру подпапок.
                     string relativePath = Path.GetRelativePath(folder, file);
                     string destination = Path.Combine(outputFolder, relativePath);
                     Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
@@ -75,7 +75,7 @@ internal static class FileScanService
             }
             finally
             {
-                // Atomic increment: multiple workers must not lose updates.
+                // Атомарно увеличиваем счётчик: прибавление не потеряется из-за гонки потоков.
                 int completed = Interlocked.Increment(ref processed);
                 int percent = files.Length == 0 ? 100 : completed * 100 / files.Length;
                 progress.Report(percent);
@@ -85,7 +85,7 @@ internal static class FileScanService
         token.ThrowIfCancellationRequested();
         progress.Report(100);
 
-        // Report is written once, AFTER all workers have finished.
+        // Формируем отчёт только после завершения всех задач.
         int total = found.Sum(item => item.Count);
         string reportPath = Path.Combine(outputFolder, "report.txt");
         var report = new StringBuilder();

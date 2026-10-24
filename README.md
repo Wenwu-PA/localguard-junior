@@ -93,6 +93,7 @@ LocalGuardJunior/
 │   └── FileScanService.cs    # параллельная проверка файлов
 ├── examples/                 # тестовые файлы
 ├── docs/DEFENSE.md           # объяснение кода и вопросы к защите
+├── docs/REQUIREMENTS.md      # соответствие экзаменационному ТЗ
 ├── create-project.ps1        # dotnet new winforms + сборка
 ├── update-sources.ps1        # обновление существующего проекта
 ├── .gitignore

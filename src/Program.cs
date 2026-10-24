@@ -2,7 +2,7 @@ namespace LocalGuardJunior;
 
 internal static class Program
 {
-    [STAThread] // Windows Forms requires a single-threaded apartment for its UI thread.
+    [STAThread] // Главный поток интерфейса WinForms должен работать в режиме STA.
     private static void Main()
     {
         ApplicationConfiguration.Initialize();

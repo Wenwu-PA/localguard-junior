@@ -40,7 +40,7 @@ internal sealed class MainForm : Form
 
         FormClosing += (_, _) =>
         {
-            // Request a graceful stop when the window is closed.
+            // При закрытии окна просим фоновые задачи остановиться.
             scanCancellation?.Cancel();
             watchCancellation?.Cancel();
         };
@@ -67,7 +67,7 @@ internal sealed class MainForm : Form
         page.Controls.Add(Label("Слова для замены (через запятую)", 20, 93, 500));
         wordsBox.SetBounds(20, 124, 838, 30);
         wordsBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        wordsBox.Text = "дурак, грубость"; // Examples only; the user can change them.
+        wordsBox.Text = "дурак, грубость"; // Это примеры слов: пользователь может их изменить.
         page.Controls.Add(wordsBox);
 
         page.Controls.Add(Label(
@@ -125,7 +125,7 @@ internal sealed class MainForm : Form
         scanStatus.Text = "Проверка...";
         scanLog.Clear();
 
-        // Progress<T> posts updates to the UI thread (the worker may run elsewhere).
+        // Progress<int> безопасно обновляет интерфейс из фонового кода.
         var progress = new Progress<int>(percent =>
         {
             if (IsDisposed || scanCancellation is null) return;
@@ -135,7 +135,7 @@ internal sealed class MainForm : Form
 
         try
         {
-            // await does not block the window while files are being checked.
+            // await не блокирует окно во время длительной проверки файлов.
             ScanSummary result = await FileScanService.ScanAsync(
                 folder, words, progress, scanCancellation.Token);
             scanStatus.Text = "Проверка завершена";
@@ -211,7 +211,7 @@ internal sealed class MainForm : Form
             .Where(name => name.Length > 0 && !name.Contains(' ') && !name.Contains('\\') && !name.Contains('/'))
             .ToList();
 
-        // Essential Windows processes cannot be added accidentally.
+        // Защищаем важные системные процессы от случайного завершения.
         string[] protectedNames =
         ["system", "idle", "csrss", "wininit", "winlogon", "lsass", "services", "svchost",
          "smss", "dwm", "explorer", "taskmgr", "powershell", "pwsh", "dotnet",
@@ -239,7 +239,7 @@ internal sealed class MainForm : Form
         CancellationToken token = watchCancellation.Token;
         _ = Task.Run(async () =>
         {
-            // A background task avoids freezing the user interface.
+            // Проверка процессов работает в фоне, поэтому окно не зависает.
             using Process current = Process.GetCurrentProcess();
             int currentSession = current.SessionId;
             while (!token.IsCancellationRequested)
@@ -253,7 +253,7 @@ internal sealed class MainForm : Form
                         {
                             using (process)
                             {
-                                // Never stop this app or processes from other logon sessions.
+                                // Не завершаем собственный процесс или программы других сеансов.
                                 if (process.Id == Environment.ProcessId || process.SessionId != currentSession)
                                     continue;
 
@@ -291,7 +291,7 @@ internal sealed class MainForm : Form
     {
         if (IsDisposed || Disposing) return;
 
-        // WinForms controls can be changed only from the UI thread.
+        // Контролы WinForms можно менять только из потока интерфейса.
         if (InvokeRequired)
         {
             try { BeginInvoke((Action)(() => AppendWatchLog(message))); }
