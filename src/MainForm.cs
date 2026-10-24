@@ -279,7 +279,7 @@ internal sealed class MainForm : Form
     private void StopWatching()
     {
         watchCancellation?.Cancel();
-        watchCancellation?.Dispose();
+        // Не освобождаем CancellationTokenSource, пока фоновая задача ещё выходит из цикла.
         watchCancellation = null;
         startWatchButton.Enabled = true;
         stopWatchButton.Enabled = false;
