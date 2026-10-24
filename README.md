@@ -93,10 +93,6 @@ LocalGuardJunior/
 └── README.md
 ```
 
-## На защите
-
-Сначала покажите три вкладки приложения, затем откройте `FileScanService.cs`, объясните `Parallel.ForEachAsync`, `Interlocked` и `lock`. В `MainForm.cs` покажите `Process.GetProcessesByName`, `Task.Run` и обновление интерфейса. Краткие ответы подготовлены в [docs/DEFENSE.md](docs/DEFENSE.md).
-
 ## Ограничения
 
 - Приложение работает только пока его окно открыто; фоновой службы Windows нет.
